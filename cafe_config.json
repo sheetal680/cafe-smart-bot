@@ -1,0 +1,170 @@
+{
+  "name": "Cafe Ice Magic",
+  "tagline": "Where Every Bite is Magic ✨",
+  "description": "Vijayawada's most loved premium cafe serving delicious food, exotic ice creams, signature shakes, and hosting unforgettable celebrations since 2018.",
+  "contact": {
+    "phone": "+91 98765 43210",
+    "whatsapp": "+91 98765 43210",
+    "email": "hello@cafeicemagic.com",
+    "instagram": "@cafeicemagic_vja",
+    "facebook": "CafeIceMagicVijayawada"
+  },
+  "location": {
+    "address": "Plot No. 42, NTR Circle Road, Patamata, Vijayawada, Andhra Pradesh - 520010",
+    "landmark": "Opposite NTR Circle, Next to HDFC Bank, Patamata",
+    "google_maps": "https://maps.google.com/?q=NTR+Circle+Patamata+Vijayawada",
+    "parking": "Free parking available for 50+ vehicles in our dedicated lot. Valet service available on weekends."
+  },
+  "timings": {
+    "Monday": "11:00 AM - 11:00 PM",
+    "Tuesday": "11:00 AM - 11:00 PM",
+    "Wednesday": "11:00 AM - 11:00 PM",
+    "Thursday": "11:00 AM - 11:00 PM",
+    "Friday": "11:00 AM - 11:30 PM",
+    "Saturday": "10:00 AM - 11:30 PM",
+    "Sunday": "10:00 AM - 11:00 PM"
+  },
+  "menu": {
+    "🍕 Pizzas": [
+      { "name": "Margherita Magic", "price": 249, "description": "Classic tomato base, fresh mozzarella, basil" },
+      { "name": "Paneer Tikka Pizza", "price": 329, "description": "Spiced paneer, capsicum, onions, mint chutney base" },
+      { "name": "BBQ Chicken Pizza", "price": 379, "description": "Grilled chicken, BBQ sauce, caramelized onions" },
+      { "name": "Veggie Supreme", "price": 299, "description": "Loaded with 7 fresh vegetables on tangy tomato base" },
+      { "name": "Chicken Overload", "price": 419, "description": "Double chicken, pepperoni, jalapeños, extra cheese" },
+      { "name": "Magic Special (Signature)", "price": 449, "description": "Chef's special with truffle oil, mushrooms, sun-dried tomatoes" }
+    ],
+    "🍔 Burgers": [
+      { "name": "Classic Veg Burger", "price": 149, "description": "Crispy veggie patty, lettuce, tomato, special sauce" },
+      { "name": "Aloo Tikki Burger", "price": 139, "description": "Spiced potato patty, onions, green chutney" },
+      { "name": "Crispy Chicken Burger", "price": 199, "description": "Fried chicken fillet, coleslaw, mayo" },
+      { "name": "Double Decker Burger", "price": 279, "description": "Double chicken/veg patty, double cheese, extra veggies" },
+      { "name": "Paneer Grill Burger", "price": 189, "description": "Grilled paneer tikka patty, mint mayo, crispy onions" },
+      { "name": "Magic Tower Burger", "price": 349, "description": "Triple layer beast — chicken, egg, cheese, special spices" }
+    ],
+    "🍦 Ice Creams": [
+      { "name": "Belgian Chocolate Scoop", "price": 89, "description": "Rich dark Belgian chocolate, 1 scoop" },
+      { "name": "Mango Tango Scoop", "price": 89, "description": "Fresh Alphonso mango, seasonal" },
+      { "name": "Strawberry Dreams", "price": 89, "description": "Creamy strawberry with real fruit pieces" },
+      { "name": "Butterscotch Bliss", "price": 89, "description": "Classic butterscotch with crunchy pralines" },
+      { "name": "Magic Sundae", "price": 199, "description": "3 scoops + hot fudge + nuts + cherry + whipped cream" },
+      { "name": "Brownie Sundae", "price": 229, "description": "Warm brownie + vanilla ice cream + chocolate sauce" },
+      { "name": "Banana Split", "price": 249, "description": "Fresh banana, 3 scoops, 3 sauces, nuts, cream" },
+      { "name": "Rainbow Parfait", "price": 219, "description": "Layered fruit, ice cream, granola, honey drizzle" }
+    ],
+    "🥤 Shakes & Smoothies": [
+      { "name": "Classic Vanilla Shake", "price": 149, "description": "Thick creamy vanilla milkshake" },
+      { "name": "Oreo Crunch Shake", "price": 179, "description": "Oreo + vanilla ice cream + milk + oreo crumbles" },
+      { "name": "Kit-Kat Shake", "price": 179, "description": "Kit-Kat blended with chocolate ice cream" },
+      { "name": "Ferrero Rocher Shake", "price": 219, "description": "Premium Ferrero Rocher shake with hazelnut cream" },
+      { "name": "Mango Smoothie", "price": 159, "description": "Fresh mango, yogurt, honey — thick and tropical" },
+      { "name": "Berry Blast Smoothie", "price": 169, "description": "Mixed berries, banana, Greek yogurt" },
+      { "name": "Peanut Butter Shake", "price": 199, "description": "Peanut butter, banana, chocolate ice cream" },
+      { "name": "Magic Unicorn Shake", "price": 249, "description": "Signature colorful shake — Instagram-worthy!" }
+    ],
+    "🍰 Desserts & Waffles": [
+      { "name": "Nutella Waffle", "price": 199, "description": "Crispy Belgian waffle, Nutella, banana, powdered sugar" },
+      { "name": "Fruit Waffle", "price": 189, "description": "Waffle with fresh fruit, honey, whipped cream" },
+      { "name": "Chocolate Lava Cake", "price": 179, "description": "Warm molten chocolate cake, vanilla ice cream" },
+      { "name": "Cheesecake Slice", "price": 189, "description": "New York style baked cheesecake, berry coulis" },
+      { "name": "Tiramisu", "price": 199, "description": "Classic Italian tiramisu with espresso soak" },
+      { "name": "Gulab Jamun Ice Cream", "price": 159, "description": "Fusion — warm gulab jamun + vanilla ice cream" },
+      { "name": "Brownie Tower", "price": 219, "description": "Stack of warm brownies, Nutella drizzle, nuts" }
+    ],
+    "☕ Hot Beverages": [
+      { "name": "Espresso", "price": 79, "description": "Single/double shot" },
+      { "name": "Cappuccino", "price": 119, "description": "Espresso with steamed milk foam" },
+      { "name": "Café Latte", "price": 129, "description": "Smooth espresso with velvety milk" },
+      { "name": "Cold Coffee", "price": 139, "description": "Chilled coffee with ice cream scoop" },
+      { "name": "Masala Chai", "price": 69, "description": "Spiced Indian tea with ginger" },
+      { "name": "Hot Chocolate", "price": 129, "description": "Rich Belgian chocolate with whipped cream" }
+    ],
+    "🍟 Snacks & Sides": [
+      { "name": "Loaded Fries", "price": 149, "description": "Crispy fries with cheese sauce, jalapeños, sour cream" },
+      { "name": "Onion Rings", "price": 109, "description": "Beer-battered crispy onion rings" },
+      { "name": "Nachos with Dips", "price": 169, "description": "Tortilla chips, salsa, guacamole, cheese dip" },
+      { "name": "Chicken Nuggets (8 pcs)", "price": 179, "description": "Crispy chicken nuggets with dipping sauce" },
+      { "name": "Mozzarella Sticks", "price": 159, "description": "Fried mozzarella, marinara dip" }
+    ]
+  },
+  "birthday_packages": [
+    {
+      "name": "Sweet Celebration Package",
+      "price": 5000,
+      "min_guests": 10,
+      "max_guests": 20,
+      "description": "Perfect for intimate birthdays. Includes: reserved table decoration, birthday banner & balloons, 1 kg custom cake, 1 round of shakes/cold drinks for all guests, complimentary birthday song & polaroid photos",
+      "highlights": ["Decorated table", "1 Kg Cake", "Drinks round", "Balloons & Banner", "Photo moment"]
+    },
+    {
+      "name": "Magic Birthday Package",
+      "price": 8000,
+      "min_guests": 20,
+      "max_guests": 35,
+      "description": "Our most popular package! Includes: premium venue decoration with LED lights, custom name backdrop, 2 kg designer cake, welcome drinks for all, 1 round of any milkshakes, dedicated birthday host, professional cake cutting ceremony",
+      "highlights": ["LED decoration", "2 Kg Designer Cake", "Welcome drinks", "Shake round", "Birthday host", "Backdrop"]
+    },
+    {
+      "name": "Grand Ice Magic Package",
+      "price": 12000,
+      "min_guests": 35,
+      "max_guests": 60,
+      "description": "Go all out! Includes: exclusive section of cafe, premium theme decoration, 3 kg custom designer cake, welcome mocktails, unlimited ice cream scoops for 2 hours, DJ music (curated playlist), photo booth with props, dedicated event coordinator, return gifts setup area",
+      "highlights": ["Exclusive section", "3 Kg Cake", "Unlimited ice cream 2hrs", "DJ playlist", "Photo booth", "Event coordinator"]
+    },
+    {
+      "name": "Royal Celebration Package",
+      "price": 15000,
+      "min_guests": 50,
+      "max_guests": 100,
+      "description": "The ultimate birthday experience! Full cafe buyout option available. Includes: entire cafe decoration, 4 kg premium 3-tier cake, welcome drinks + mocktails, unlimited food from selected menu for 3 hours, live DJ music, professional photographer (1 hour), Instagram-worthy setups, personalized return gifts",
+      "highlights": ["Full cafe decoration", "4 Kg 3-tier cake", "Unlimited food 3hrs", "Live DJ", "Photographer", "Return gifts"]
+    }
+  ],
+  "event_booking": {
+    "description": "We host corporate events, kitty parties, anniversaries, baby showers, farewell parties, and all celebrations! Our dedicated events team will make your occasion truly special.",
+    "min_guests": 10,
+    "advance_notice": "Minimum 3 days advance booking required. For large events (50+), 7 days notice preferred.",
+    "corporate_events": "Corporate lunch/dinner, team outings, product launches, client meetings — we have dedicated corporate packages.",
+    "contact_for_events": "Call/WhatsApp +91 98765 43210 or email events@cafeicemagic.com"
+  },
+  "table_reservation": {
+    "policy": "We accept table reservations for groups of 4 or more. Reservation holds for 15 minutes after booked time.",
+    "process": "Call us at +91 98765 43210 or use this chat to reserve your table.",
+    "cancellation": "Please cancel at least 2 hours in advance."
+  },
+  "offers": [
+    {
+      "name": "Happy Hours",
+      "description": "20% off on all shakes and ice creams",
+      "validity": "Monday to Friday, 3 PM - 6 PM",
+      "code": "HAPPYHOURS"
+    },
+    {
+      "name": "Weekend Brunch Special",
+      "description": "Burger + Shake + Fries combo at ₹399 (Save ₹120)",
+      "validity": "Saturday & Sunday, 10 AM - 1 PM",
+      "code": "BRUNCH399"
+    },
+    {
+      "name": "Birthday Month Offer",
+      "description": "FREE birthday cake slice + 15% off your bill on your birthday month",
+      "validity": "Show Aadhaar/any ID with birth month",
+      "code": "BDAYMAGIC"
+    },
+    {
+      "name": "Student Discount",
+      "description": "15% off on all orders with valid student ID",
+      "validity": "All days",
+      "code": "STUDENT15"
+    }
+  ],
+  "wifi": "Free high-speed WiFi available. Ask staff for password.",
+  "special_features": [
+    "Fully air-conditioned",
+    "Private party area available",
+    "Kids play corner",
+    "Instagram photo zones",
+    "Live dessert station on weekends",
+    "Loyalty rewards program"
+  ]
+}

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Dashboard{% endblock %} — {{ cafe.name }} Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/static/css/admin.css"/>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- MOBILE OVERLAY BACKDROP -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-icon">✨</span>
+    <div class="brand-text">
+      <span class="brand-name">{{ cafe.name }}</span>
+      <span class="brand-role">Admin Panel</span>
+    </div>
+    <button class="sidebar-close-btn" id="sidebarClose" aria-label="Close menu">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a href="/admin/dashboard" class="nav-item {% if request.path in ('/admin/dashboard', '/admin') %}active{% endif %}">
+      <i class="fas fa-tachometer-alt"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <div class="nav-section-label">Customers</div>
+    <a href="/admin/leads" class="nav-item {% if '/leads' in request.path %}active{% endif %}">
+      <i class="fas fa-users"></i>
+      <span>Leads</span>
+      {% if new_leads_count > 0 %}
+      <span class="nav-badge-count">{{ new_leads_count }}</span>
+      {% endif %}
+    </a>
+    <a href="/admin/bookings" class="nav-item {% if '/bookings' in request.path %}active{% endif %}">
+      <i class="fas fa-calendar-check"></i>
+      <span>Bookings</span>
+    </a>
+
+    <div class="nav-section-label">Insights</div>
+    <a href="/admin/chat-logs" class="nav-item {% if 'chat-logs' in request.path %}active{% endif %}">
+      <i class="fas fa-comments"></i>
+      <span>Chat Logs</span>
+    </a>
+    <a href="/admin/analytics" class="nav-item {% if '/analytics' in request.path %}active{% endif %}">
+      <i class="fas fa-chart-line"></i>
+      <span>Analytics</span>
+    </a>
+
+    <div class="nav-section-label">Export</div>
+    <a href="/api/export-leads" class="nav-item">
+      <i class="fas fa-file-csv"></i>
+      <span>Export Leads</span>
+    </a>
+    <a href="/api/export-bookings" class="nav-item">
+      <i class="fas fa-file-export"></i>
+      <span>Export Bookings</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="/" class="nav-item" target="_blank">
+      <i class="fas fa-external-link-alt"></i>
+      <span>View Website</span>
+    </a>
+    <a href="/admin/logout" class="nav-item logout">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Logout</span>
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="main-content" id="mainContent">
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+    <div class="topbar-right">
+      <span class="topbar-time" id="currentTime"></span>
+      {% if new_leads_count > 0 %}
+      <a href="/admin/leads" class="topbar-alert" title="{{ new_leads_count }} uncontacted leads">
+        <i class="fas fa-bell"></i>
+        <span class="topbar-alert-badge">{{ new_leads_count }}</span>
+      </a>
+      {% endif %}
+      <div class="topbar-user">
+        <i class="fas fa-user-circle"></i>
+        <span>Admin</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- PAGE CONTENT -->
+  <main class="page-content">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script>
+(function () {
+  const sidebar   = document.getElementById('sidebar');
+  const backdrop  = document.getElementById('sidebarBackdrop');
+  const toggle    = document.getElementById('sidebarToggle');
+  const closeBtn  = document.getElementById('sidebarClose');
+  const main      = document.getElementById('mainContent');
+
+  function isMobile() { return window.innerWidth < 768; }
+
+  function openMobileSidebar() {
+    sidebar.classList.add('mobile-open');
+    backdrop.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMobileSidebar() {
+    sidebar.classList.remove('mobile-open');
+    backdrop.classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  function toggleDesktopSidebar() {
+    sidebar.classList.toggle('collapsed');
+    main.classList.toggle('sidebar-collapsed');
+    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+  }
+
+  // Restore desktop collapse state
+  if (!isMobile() && localStorage.getItem('sidebarCollapsed') === 'true') {
+    sidebar.classList.add('collapsed');
+    main.classList.add('sidebar-collapsed');
+  }
+
+  toggle.addEventListener('click', () => {
+    if (isMobile()) openMobileSidebar(); else toggleDesktopSidebar();
+  });
+
+  if (closeBtn) closeBtn.addEventListener('click', closeMobileSidebar);
+  backdrop.addEventListener('click', closeMobileSidebar);
+
+  // Close on resize if switching to desktop
+  window.addEventListener('resize', () => {
+    if (!isMobile()) closeMobileSidebar();
+  });
+
+  // Live clock
+  function updateTime() {
+    const now = new Date();
+    const el = document.getElementById('currentTime');
+    if (el) el.textContent =
+      now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' · ' +
+      now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+  }
+  updateTime();
+  setInterval(updateTime, 1000);
+})();
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

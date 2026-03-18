@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ cafe.name }} — {{ cafe.tagline }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/static/css/main.css"/>
+  <link rel="stylesheet" href="/static/css/widget.css"/>
+</head>
+<body>
+
+<!-- ── NAV ───────────────────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="#" class="nav-brand">
+      <span class="brand-icon">✨</span> {{ cafe.name }}
+    </a>
+    <ul class="nav-links">
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#packages">Packages</a></li>
+      <li><a href="#offers">Offers</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="/admin" class="nav-admin">Admin</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-blob blob1"></div>
+    <div class="hero-blob blob2"></div>
+    <div class="hero-blob blob3"></div>
+  </div>
+  <div class="hero-content">
+    <span class="hero-badge">✨ Vijayawada's Favourite Cafe</span>
+    <h1 class="hero-title">{{ cafe.name }}</h1>
+    <p class="hero-tagline">{{ cafe.tagline }}</p>
+    <p class="hero-desc">{{ cafe.description }}</p>
+    <div class="hero-cta">
+      <a href="#menu" class="btn btn-primary">Explore Menu</a>
+      <a href="#packages" class="btn btn-outline">Birthday Packages</a>
+    </div>
+    <div class="hero-timings">
+      <i class="fas fa-clock"></i>
+      Open: Mon–Thu 11 AM–11 PM &nbsp;|&nbsp; Fri–Sat 11 AM–11:30 PM &nbsp;|&nbsp; Sun 10 AM–11 PM
+    </div>
+  </div>
+  <div class="hero-scroll-indicator">
+    <i class="fas fa-chevron-down"></i>
+  </div>
+</section>
+
+<!-- ── STATS STRIP ────────────────────────────────────────────────────────── -->
+<section class="stats-strip">
+  <div class="stat-item">
+    <span class="stat-number">5000+</span>
+    <span class="stat-label">Happy Customers</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-number">200+</span>
+    <span class="stat-label">Birthday Parties</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-number">50+</span>
+    <span class="stat-label">Menu Items</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-number">6+</span>
+    <span class="stat-label">Years of Magic</span>
+  </div>
+</section>
+
+<!-- ── MENU ──────────────────────────────────────────────────────────────── -->
+<section class="section" id="menu">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">Our Menu</span>
+      <h2 class="section-title">Taste the Magic</h2>
+      <p class="section-subtitle">Fresh ingredients, bold flavours, unforgettable experiences</p>
+    </div>
+
+    <div class="menu-tabs">
+      {% for category, items in cafe.menu.items() %}
+      <button class="menu-tab {% if loop.first %}active{% endif %}" data-target="cat-{{ loop.index }}">
+        {{ category.split(' ')[0] }} {{ category.split(' ')[1] if category.split(' ')|length > 1 else '' }}
+      </button>
+      {% endfor %}
+    </div>
+
+    {% for category, items in cafe.menu.items() %}
+    <div class="menu-category {% if loop.first %}active{% endif %}" id="cat-{{ loop.index }}">
+      <h3 class="category-title">{{ category }}</h3>
+      <div class="menu-grid">
+        {% for item in items %}
+        <div class="menu-card">
+          <div class="menu-card-body">
+            <h4 class="item-name">{{ item.name }}</h4>
+            <p class="item-desc">{{ item.description }}</p>
+          </div>
+          <div class="item-price">₹{{ item.price }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ── BIRTHDAY PACKAGES ──────────────────────────────────────────────────── -->
+<section class="section section-dark" id="packages">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">Celebrate With Us</span>
+      <h2 class="section-title">Birthday Party Packages</h2>
+      <p class="section-subtitle">Make every celebration magical — from intimate parties to grand events!</p>
+    </div>
+    <div class="packages-grid">
+      {% for pkg in cafe.birthday_packages %}
+      <div class="package-card {% if loop.index == 2 %}popular{% endif %}">
+        {% if loop.index == 2 %}<div class="popular-badge">⭐ Most Popular</div>{% endif %}
+        <div class="pkg-header">
+          <h3 class="pkg-name">{{ pkg.name }}</h3>
+          <div class="pkg-price">
+            <span class="price-amount">₹{{ '{:,}'.format(pkg.price) }}</span>
+            <span class="price-guests">Up to {{ pkg.max_guests }} guests</span>
+          </div>
+        </div>
+        <p class="pkg-desc">{{ pkg.description }}</p>
+        <ul class="pkg-highlights">
+          {% for h in pkg.highlights %}
+          <li><i class="fas fa-check-circle"></i> {{ h }}</li>
+          {% endfor %}
+        </ul>
+        <button class="btn btn-primary btn-block open-chat-btn" data-msg="I'm interested in the {{ pkg.name }} for ₹{{ pkg.price }}. Can you tell me more?">
+          Book This Package
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ── OFFERS ─────────────────────────────────────────────────────────────── -->
+<section class="section" id="offers">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">Special Deals</span>
+      <h2 class="section-title">Current Offers</h2>
+    </div>
+    <div class="offers-grid">
+      {% for offer in cafe.offers %}
+      <div class="offer-card">
+        <div class="offer-icon">🎁</div>
+        <h3 class="offer-name">{{ offer.name }}</h3>
+        <p class="offer-desc">{{ offer.description }}</p>
+        <p class="offer-validity"><i class="fas fa-calendar"></i> {{ offer.validity }}</p>
+        <div class="offer-code">USE CODE: <strong>{{ offer.code }}</strong></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ───────────────────────────────────────────────────────────── -->
+<section class="section section-accent">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title" style="color:#fff;">Why Choose Us?</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-item"><i class="fas fa-snowflake"></i><span>Fully Air-Conditioned</span></div>
+      <div class="feature-item"><i class="fas fa-birthday-cake"></i><span>Private Party Area</span></div>
+      <div class="feature-item"><i class="fas fa-child"></i><span>Kids Play Corner</span></div>
+      <div class="feature-item"><i class="fas fa-camera"></i><span>Instagram Photo Zones</span></div>
+      <div class="feature-item"><i class="fas fa-wifi"></i><span>Free High-Speed WiFi</span></div>
+      <div class="feature-item"><i class="fas fa-star"></i><span>Loyalty Rewards</span></div>
+      <div class="feature-item"><i class="fas fa-car"></i><span>Free Parking (50+ cars)</span></div>
+      <div class="feature-item"><i class="fas fa-ice-cream"></i><span>Live Dessert Station</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT ────────────────────────────────────────────────────────────── -->
+<section class="section" id="contact">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">Find Us</span>
+      <h2 class="section-title">Contact & Location</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="contact-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <div>
+            <strong>Address</strong>
+            <p>{{ cafe.location.address }}</p>
+            <p class="text-muted">{{ cafe.location.landmark }}</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-phone"></i>
+          <div>
+            <strong>Phone / WhatsApp</strong>
+            <p><a href="tel:{{ cafe.contact.phone }}">{{ cafe.contact.phone }}</a></p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-envelope"></i>
+          <div>
+            <strong>Email</strong>
+            <p><a href="mailto:{{ cafe.contact.email }}">{{ cafe.contact.email }}</a></p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-parking"></i>
+          <div>
+            <strong>Parking</strong>
+            <p>{{ cafe.location.parking }}</p>
+          </div>
+        </div>
+        <div class="social-links">
+          <a href="#" class="social-btn instagram"><i class="fab fa-instagram"></i> Instagram</a>
+          <a href="#" class="social-btn facebook"><i class="fab fa-facebook"></i> Facebook</a>
+          <a href="https://wa.me/919876543210" class="social-btn whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        </div>
+      </div>
+      <div class="map-placeholder">
+        <div class="map-inner">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3>{{ cafe.name }}</h3>
+          <p>{{ cafe.location.landmark }}</p>
+          <a href="{{ cafe.location.google_maps }}" target="_blank" class="btn btn-primary">
+            <i class="fas fa-directions"></i> Get Directions
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>✨ {{ cafe.name }}</h3>
+        <p>{{ cafe.tagline }}</p>
+      </div>
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <a href="#menu">Menu</a>
+        <a href="#packages">Packages</a>
+        <a href="#offers">Offers</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="footer-hours">
+        <h4>Timings</h4>
+        <p>Mon–Thu: 11 AM – 11 PM</p>
+        <p>Fri–Sat: 11 AM – 11:30 PM</p>
+        <p>Sunday: 10 AM – 11 PM</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 {{ cafe.name }}. All rights reserved. | Patamata, Vijayawada</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ── CHAT WIDGET ────────────────────────────────────────────────────────── -->
+<div id="cafe-chat-widget">
+  <button class="chat-toggle" id="chatToggle" aria-label="Open Chat">
+    <span class="toggle-icon open-icon"><i class="fas fa-comment-dots"></i></span>
+    <span class="toggle-icon close-icon" style="display:none;"><i class="fas fa-times"></i></span>
+    <span class="chat-badge" id="chatBadge">1</span>
+  </button>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="chat-avatar">✨</div>
+        <div>
+          <div class="chat-name">Maggie</div>
+          <div class="chat-status"><span class="status-dot"></span> Online — {{ cafe.name }}</div>
+        </div>
+      </div>
+      <button class="chat-minimize" id="chatMinimize"><i class="fas fa-minus"></i></button>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-date-divider">Today</div>
+      <div class="message bot-message">
+        <div class="message-bubble">
+          Hey there! 👋 I'm <strong>Maggie</strong>, your personal assistant at <strong>{{ cafe.name }}</strong>!<br><br>
+          I can help you with our menu, birthday packages, reservations, timings, and more. What would you like to know? ✨
+        </div>
+        <div class="message-time">Just now</div>
+      </div>
+    </div>
+
+    <div class="typing-indicator" id="typingIndicator" style="display:none;">
+      <div class="typing-bubble">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="typing-text">Maggie is typing...</span>
+    </div>
+
+    <div class="quick-replies" id="quickReplies">
+      <button class="quick-reply" data-msg="Show me the full menu with prices" data-action="menu">🍽️ View Menu</button>
+      <button class="quick-reply" data-msg="I want to book a table" data-action="booking">📅 Book a Table</button>
+      <button class="quick-reply" data-msg="Tell me about birthday packages" data-action="birthday">🎂 Birthday Packages</button>
+      <button class="quick-reply" data-msg="What are your timings and where are you located?" data-action="info">📍 Timings & Location</button>
+      <button class="quick-reply" data-action="staff">📞 Talk to Staff</button>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything..." autocomplete="off"/>
+      <button class="chat-send" id="chatSend"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/widget.js"></script>
+<script>
+// Menu tabs
+document.querySelectorAll('.menu-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.menu-category').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.target).classList.add('active');
+  });
+});
+
+// Nav toggle
+document.getElementById('navToggle').addEventListener('click', () => {
+  document.querySelector('.nav-links').classList.toggle('open');
+});
+
+// Open chat with pre-filled message
+document.querySelectorAll('.open-chat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('chatWindow').classList.add('open');
+    document.getElementById('chatToggle').querySelector('.open-icon').style.display = 'none';
+    document.getElementById('chatToggle').querySelector('.close-icon').style.display = 'flex';
+    const msg = btn.dataset.msg;
+    if (msg) {
+      document.getElementById('chatInput').value = msg;
+      document.getElementById('chatInput').focus();
+    }
+  });
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+</script>
+</body>
+</html>

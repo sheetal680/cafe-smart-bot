@@ -1,0 +1,322 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── QUICK STATS ─────────────────────────────────────────────────────────── -->
+<div class="quick-stats-grid">
+
+  <!-- Today's Leads -->
+  <div class="qs-card qs-orange">
+    <div class="qs-left">
+      <div class="qs-icon"><i class="fas fa-user-plus"></i></div>
+      <div>
+        <div class="qs-value">{{ ext_stats.today_leads }}</div>
+        <div class="qs-label">Leads Today</div>
+      </div>
+    </div>
+    <div class="qs-right">
+      {% if ext_stats.today_trend == 'up' %}
+        <div class="qs-trend trend-up">
+          <i class="fas fa-arrow-up"></i>
+          {% if ext_stats.today_diff == 0 %}same as{% else %}+{{ ext_stats.today_diff }} vs{% endif %}
+          yesterday
+        </div>
+      {% else %}
+        <div class="qs-trend trend-down">
+          <i class="fas fa-arrow-down"></i>
+          {{ ext_stats.today_diff }} vs yesterday
+        </div>
+      {% endif %}
+      <canvas class="qs-sparkline" id="sparkline"></canvas>
+    </div>
+  </div>
+
+  <!-- Week Bookings -->
+  <div class="qs-card qs-gold">
+    <div class="qs-left">
+      <div class="qs-icon"><i class="fas fa-calendar-week"></i></div>
+      <div>
+        <div class="qs-value">{{ ext_stats.week_bookings }}</div>
+        <div class="qs-label">Bookings This Week</div>
+      </div>
+    </div>
+    <div class="qs-right">
+      <div class="qs-sublabel">Last 7 days</div>
+      <a href="/admin/bookings" class="qs-link">View all →</a>
+    </div>
+  </div>
+
+  <!-- Pending Bookings -->
+  <div class="qs-card {% if ext_stats.pending_bookings > 0 %}qs-red{% else %}qs-green{% endif %}">
+    <div class="qs-left">
+      <div class="qs-icon">
+        <i class="fas fa-{% if ext_stats.pending_bookings > 0 %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+      </div>
+      <div>
+        <div class="qs-value">{{ ext_stats.pending_bookings }}</div>
+        <div class="qs-label">Pending Bookings</div>
+      </div>
+    </div>
+    <div class="qs-right">
+      {% if ext_stats.pending_bookings > 0 %}
+      <div class="qs-sublabel urgent">Needs attention!</div>
+      {% else %}
+      <div class="qs-sublabel">All clear ✓</div>
+      {% endif %}
+      <a href="/admin/bookings?status=new" class="qs-link">Review →</a>
+    </div>
+  </div>
+
+  <!-- Total Conversations -->
+  <div class="qs-card qs-purple">
+    <div class="qs-left">
+      <div class="qs-icon"><i class="fas fa-comments"></i></div>
+      <div>
+        <div class="qs-value">{{ ext_stats.total_conversations }}</div>
+        <div class="qs-label">Total Conversations</div>
+      </div>
+    </div>
+    <div class="qs-right">
+      <div class="qs-sublabel">All time</div>
+      <a href="/admin/chat-logs" class="qs-link">View logs →</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Uncontacted alert -->
+{% if ext_stats.uncontacted > 0 %}
+<div class="alert-banner">
+  <i class="fas fa-bell"></i>
+  <span>You have <strong>{{ ext_stats.uncontacted }} uncontacted lead{{ 's' if ext_stats.uncontacted != 1 }}</strong> — follow up to convert them!</span>
+  <a href="/admin/leads?contacted=no" class="alert-banner-btn">Follow Up Now</a>
+</div>
+{% endif %}
+
+<!-- ── QUICK ACTIONS ───────────────────────────────────────────────────────── -->
+<div class="quick-actions-bar">
+  <h3 class="section-label">Quick Actions</h3>
+  <div class="quick-action-btns">
+    <a href="/admin/leads" class="qa-btn"><i class="fas fa-users"></i> All Leads</a>
+    <a href="/admin/bookings?status=new" class="qa-btn urgent-btn"><i class="fas fa-calendar"></i> Pending Bookings</a>
+    <a href="/api/export-leads" class="qa-btn export"><i class="fas fa-download"></i> Export CSV</a>
+    <a href="/admin/analytics" class="qa-btn"><i class="fas fa-chart-bar"></i> Analytics</a>
+    <a href="/admin/chat-logs" class="qa-btn"><i class="fas fa-comments"></i> Chat Logs</a>
+  </div>
+</div>
+
+<!-- ── RECENT DATA ─────────────────────────────────────────────────────────── -->
+<div class="dashboard-grid">
+  <!-- Recent Leads -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-users"></i> Recent Leads</h3>
+      <a href="/admin/leads" class="card-action">View All →</a>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lead in recent_leads %}
+          <tr>
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar {% if lead.contacted %}avatar-contacted{% endif %}">
+                  {{ (lead.name or 'U')[0].upper() }}
+                </div>
+                <div>
+                  <div class="user-name">{{ lead.name or '—' }}</div>
+                  <div class="user-email">{{ lead.email or '' }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="text-sm">{{ lead.phone or '—' }}</td>
+            <td>
+              <span class="badge badge-{{ lead.inquiry_type }}">
+                {{ lead.inquiry_type|replace('_',' ')|title }}
+              </span>
+            </td>
+            <td>
+              {% if lead.contacted %}
+                <span class="contacted-pill contacted">✓ Contacted</span>
+              {% else %}
+                <span class="contacted-pill uncontacted">● New</span>
+              {% endif %}
+            </td>
+            <td class="text-muted text-sm">{{ lead.created_at[:16] if lead.created_at else '—' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="empty-state">No leads yet — the chatbot will capture them!</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Bookings -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-calendar-check"></i> Recent Bookings</h3>
+      <a href="/admin/bookings" class="card-action">View All →</a>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Event</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in recent_bookings %}
+          <tr>
+            <td>
+              <div class="user-name">{{ booking.name or '—' }}</div>
+              <div class="user-email">{{ booking.phone or '' }}</div>
+            </td>
+            <td class="text-sm">{{ booking.event_type|replace('_',' ')|title if booking.event_type else '—' }}</td>
+            <td class="text-sm">{{ booking.date or '—' }}</td>
+            <td>
+              <span class="status-badge status-{{ booking.status or 'new' }}">
+                {{ (booking.status or 'new')|title }}
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty-state">No bookings yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Mini sparkline
+const sparkData = {{ sparkline | tojson }};
+function fillDays(data, days) {
+  const map = {};
+  data.forEach(d => { map[d.day] = d.count; });
+  const result = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    result.push({ day: key.slice(5), count: map[key] || 0 });
+  }
+  return result;
+}
+const filled = fillDays(sparkData, 7);
+const sparkCanvas = document.getElementById('sparkline');
+if (sparkCanvas) {
+  new Chart(sparkCanvas, {
+    type: 'line',
+    data: {
+      labels: filled.map(d => d.day),
+      datasets: [{ data: filled.map(d => d.count), borderColor: 'rgba(255,255,255,0.8)',
+        backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false, beginAtZero: true } },
+      animation: { duration: 600 } }
+  });
+}
+
+// ── Booking notification polling ─────────────────────────────────────────────
+let lastBookingId = {{ latest_booking_id }};
+
+function showToast(booking) {
+  const existing = document.getElementById('bookingToast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'bookingToast';
+  toast.className = 'booking-toast';
+  const eventLabel = (booking.event_type || 'booking').replace(/_/g, ' ');
+  toast.innerHTML = `
+    <div class="toast-icon">🔔</div>
+    <div class="toast-body">
+      <div class="toast-title">New Booking Request!</div>
+      <div class="toast-detail">
+        <strong>${booking.name || 'Customer'}</strong> — ${eventLabel}
+        ${booking.guests ? '· ' + booking.guests + ' guests' : ''}
+        ${booking.date   ? '· ' + booking.date : ''}
+      </div>
+      ${booking.booking_ref ? `<div class="toast-ref">Ref: #${booking.booking_ref}</div>` : ''}
+    </div>
+    <div class="toast-actions">
+      <a href="/admin/bookings" class="toast-btn">View</a>
+      <button class="toast-close" onclick="this.closest('.booking-toast').remove()">✕</button>
+    </div>
+  `;
+  document.body.appendChild(toast);
+
+  // Slide in
+  requestAnimationFrame(() => toast.classList.add('toast-visible'));
+
+  // Auto-dismiss after 12 seconds
+  setTimeout(() => {
+    toast.classList.remove('toast-visible');
+    setTimeout(() => toast.remove(), 400);
+  }, 12000);
+
+  // Also play a subtle notification sound if permission granted
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc.start(); osc.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
+async function pollNewBookings() {
+  try {
+    const res = await fetch(`/api/new-bookings?since=${lastBookingId}`);
+    if (!res.ok) return;
+    const bookings = await res.json();
+    if (bookings.length > 0) {
+      // bookings are ordered DESC by id, so index 0 is newest
+      lastBookingId = bookings[0].id;
+      // Show toast for the newest one
+      showToast(bookings[0]);
+      // Refresh pending count badge in stats if visible
+      const pendingEl = document.querySelector('.qs-value.pending-val');
+      if (pendingEl) {
+        const cur = parseInt(pendingEl.textContent) || 0;
+        pendingEl.textContent = cur + bookings.length;
+      }
+    }
+  } catch(e) {}
+}
+
+// Start polling after 30s delay (no point polling immediately on page load)
+setTimeout(() => {
+  pollNewBookings();  // first check after 30s
+  setInterval(pollNewBookings, 30000);
+}, 30000);
+</script>
+{% endblock %}

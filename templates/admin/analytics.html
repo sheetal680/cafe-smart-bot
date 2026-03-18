@@ -1,0 +1,198 @@
+{% extends "admin/base.html" %}
+{% block title %}Analytics{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Summary -->
+<div class="stats-grid">
+  <div class="stat-card orange">
+    <div class="stat-card-icon"><i class="fas fa-user-plus"></i></div>
+    <div class="stat-card-body">
+      <div class="stat-card-value">{{ stats.today }}</div>
+      <div class="stat-card-label">Today's Leads</div>
+    </div>
+  </div>
+  <div class="stat-card gold">
+    <div class="stat-card-icon"><i class="fas fa-calendar-week"></i></div>
+    <div class="stat-card-body">
+      <div class="stat-card-value">{{ stats.week }}</div>
+      <div class="stat-card-label">Weekly Leads</div>
+    </div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-card-icon"><i class="fas fa-users"></i></div>
+    <div class="stat-card-body">
+      <div class="stat-card-value">{{ stats.total }}</div>
+      <div class="stat-card-label">Total Leads</div>
+    </div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-card-icon"><i class="fas fa-calendar-check"></i></div>
+    <div class="stat-card-body">
+      <div class="stat-card-value">{{ stats.bookings }}</div>
+      <div class="stat-card-label">Total Bookings</div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row 1 -->
+<div class="charts-grid">
+  <div class="card chart-card wide">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-chart-line"></i> Leads Per Day (Last 30 Days)</h3>
+    </div>
+    <canvas id="leadsChart" height="100"></canvas>
+  </div>
+
+  <div class="card chart-card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-chart-pie"></i> Inquiry Breakdown</h3>
+    </div>
+    <canvas id="pieChart" height="160"></canvas>
+  </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="charts-grid">
+  <div class="card chart-card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-clock"></i> Peak Chat Hours</h3>
+    </div>
+    <canvas id="hoursChart" height="180"></canvas>
+  </div>
+
+  <div class="card chart-card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-fire"></i> Popular Topics</h3>
+    </div>
+    <div id="topicsContainer" class="topics-list"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const ORANGE = '#FF6B35';
+const GOLD   = '#FFD700';
+const PURPLE = '#7c3aed';
+const GREEN  = '#22c55e';
+const CHART_DEFAULTS = {
+  color: 'rgba(255,255,255,0.7)',
+  borderColor: 'rgba(255,255,255,0.1)',
+};
+
+Chart.defaults.color = CHART_DEFAULTS.color;
+Chart.defaults.borderColor = CHART_DEFAULTS.borderColor;
+
+async function loadAnalytics() {
+  const res = await fetch('/api/analytics-data');
+  const data = await res.json();
+
+  // Leads per day chart
+  const lpd = data.leads_per_day || [];
+  const labels = lpd.map(d => d.day);
+  const counts = lpd.map(d => d.count);
+
+  new Chart(document.getElementById('leadsChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Leads',
+        data: counts,
+        borderColor: ORANGE,
+        backgroundColor: 'rgba(255,107,53,0.1)',
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: ORANGE,
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+
+  // Inquiry pie chart
+  const ib = data.inquiry_breakdown || [];
+  const COLORS = [ORANGE, GOLD, PURPLE, GREEN, '#06b6d4', '#f43f5e'];
+  new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ib.map(d => d.inquiry_type.replace(/_/g,' ')),
+      datasets: [{
+        data: ib.map(d => d.count),
+        backgroundColor: COLORS,
+        borderWidth: 2,
+        borderColor: '#1a1a2e'
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 16, boxWidth: 12 } }
+      },
+      cutout: '65%'
+    }
+  });
+
+  // Peak hours bar chart
+  const ph = data.peak_hours || [];
+  const hourLabels = ph.map(d => `${d.hour}:00`);
+  const hourCounts = ph.map(d => d.count);
+
+  new Chart(document.getElementById('hoursChart'), {
+    type: 'bar',
+    data: {
+      labels: hourLabels,
+      datasets: [{
+        label: 'Chats',
+        data: hourCounts,
+        backgroundColor: 'rgba(255,215,0,0.7)',
+        borderColor: GOLD,
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+
+  // Popular topics
+  const topics = data.popular_topics || [];
+  const topicsEl = document.getElementById('topicsContainer');
+  if (!topics.length) {
+    topicsEl.innerHTML = '<div class="empty-state">No topic data yet. Topics populate as customers chat.</div>';
+    return;
+  }
+  const max = Math.max(...topics.map(t => t.count), 1);
+  topicsEl.innerHTML = topics.map(t => {
+    const pct = Math.round((t.count / max) * 100);
+    const label = (t.topic || '').replace('topic_', '').replace(/_/g, ' ');
+    return `
+      <div class="topic-row">
+        <span class="topic-label">${label}</span>
+        <div class="topic-bar-bg">
+          <div class="topic-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <span class="topic-count">${t.count}</span>
+      </div>`;
+  }).join('');
+}
+
+loadAnalytics();
+</script>
+{% endblock %}

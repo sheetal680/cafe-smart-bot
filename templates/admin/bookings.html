@@ -1,0 +1,129 @@
+{% extends "admin/base.html" %}
+{% block title %}Bookings{% endblock %}
+{% block page_title %}Bookings & Reservations{% endblock %}
+
+{% block content %}
+<div class="page-toolbar">
+  <div class="filter-tabs">
+    <a href="?status=all" class="filter-tab {% if current_filter == 'all' %}active{% endif %}">All</a>
+    <a href="?status=new" class="filter-tab {% if current_filter == 'new' %}active{% endif %}">
+      New <span class="tab-count">{{ bookings|selectattr('status','eq','new')|list|length if current_filter == 'all' else '' }}</span>
+    </a>
+    <a href="?status=confirmed" class="filter-tab {% if current_filter == 'confirmed' %}active{% endif %}">Confirmed</a>
+    <a href="?status=cancelled" class="filter-tab {% if current_filter == 'cancelled' %}active{% endif %}">Cancelled</a>
+  </div>
+  <div class="toolbar-actions">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search bookings..."/>
+    <a href="/api/export-bookings" class="btn-export"><i class="fas fa-download"></i> Export CSV</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i class="fas fa-calendar-check"></i> Bookings
+      <span class="count-badge">{{ bookings|length }}</span>
+    </h3>
+  </div>
+  <div class="table-responsive">
+    <table class="data-table" id="bookingsTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Customer</th>
+          <th>Contact</th>
+          <th>Event Type</th>
+          <th>Date & Time</th>
+          <th>Guests</th>
+          <th>Special Requests</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bookings %}
+        <tr id="row-{{ b.id }}">
+          <td class="text-muted">{{ b.id }}</td>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">{{ (b.name or 'U')[0].upper() }}</div>
+              <div>
+                <div class="user-name">{{ b.name or 'Unknown' }}</div>
+                <div class="user-email">{{ b.email or '' }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            {% if b.phone %}
+            <a href="tel:{{ b.phone }}" class="phone-link">
+              <i class="fas fa-phone-alt"></i> {{ b.phone }}
+            </a>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            <span class="badge badge-{{ b.event_type }}">{{ (b.event_type or 'general')|replace('_',' ')|title }}</span>
+          </td>
+          <td>
+            {% if b.date %}<strong>{{ b.date }}</strong>{% else %}—{% endif %}
+            {% if b.time %}<br><small class="text-muted">{{ b.time }}</small>{% endif %}
+          </td>
+          <td>
+            {% if b.guests %}<span class="guests-badge">{{ b.guests }} people</span>{% else %}—{% endif %}
+          </td>
+          <td class="message-preview">{{ (b.special_requests or '')[:60] }}{% if b.special_requests and b.special_requests|length > 60 %}…{% endif %}</td>
+          <td>
+            <span class="status-badge status-{{ b.status }}" id="status-{{ b.id }}">{{ (b.status or 'new')|title }}</span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn confirm" onclick="updateStatus({{ b.id }}, 'confirmed')" title="Confirm">
+                <i class="fas fa-check"></i>
+              </button>
+              <button class="action-btn cancel" onclick="updateStatus({{ b.id }}, 'cancelled')" title="Cancel">
+                <i class="fas fa-times"></i>
+              </button>
+              <button class="action-btn reset" onclick="updateStatus({{ b.id }}, 'new')" title="Reset to New">
+                <i class="fas fa-redo"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" class="empty-state">
+            <i class="fas fa-calendar-times"></i><br>No bookings found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function updateStatus(id, status) {
+  const res = await fetch('/api/booking-status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, status })
+  });
+  if (res.ok) {
+    const el = document.getElementById(`status-${id}`);
+    el.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    el.className = `status-badge status-${status}`;
+    // Flash effect
+    el.style.transform = 'scale(1.2)';
+    setTimeout(() => el.style.transform = '', 300);
+  }
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#bookingsTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

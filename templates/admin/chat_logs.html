@@ -1,0 +1,101 @@
+{% extends "admin/base.html" %}
+{% block title %}Chat Logs{% endblock %}
+{% block page_title %}Chat Logs{% endblock %}
+
+{% block content %}
+<div class="chat-logs-layout">
+  <!-- Sessions List -->
+  <div class="sessions-panel card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-comments"></i> Conversations</h3>
+      <span class="count-badge">{{ sessions|length }}</span>
+    </div>
+    <input type="text" id="sessionSearch" class="search-input" placeholder="🔍 Search sessions..."/>
+    <div class="sessions-list" id="sessionsList">
+      {% for s in sessions %}
+      <div class="session-item" data-session="{{ s.session_id }}" onclick="loadSession('{{ s.session_id }}', this)">
+        <div class="session-avatar">{{ loop.index }}</div>
+        <div class="session-info">
+          <div class="session-id">Session {{ s.session_id[:8] }}...</div>
+          <div class="session-meta">
+            <span><i class="fas fa-comment"></i> {{ s.message_count }} msgs</span>
+            <span><i class="fas fa-clock"></i> {{ s.last_message[:10] if s.last_message else '?' }}</span>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-state">No conversations yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Chat View -->
+  <div class="chat-view card" id="chatView">
+    <div class="card-header">
+      <h3 class="card-title" id="chatViewTitle"><i class="fas fa-comment-dots"></i> Select a conversation</h3>
+    </div>
+    <div class="chat-view-messages" id="chatViewMessages">
+      <div class="empty-state chat-empty">
+        <i class="fas fa-mouse-pointer" style="font-size:32px;margin-bottom:12px;"></i>
+        <p>Click a conversation on the left to view the full chat history.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function loadSession(sessionId, el) {
+  document.querySelectorAll('.session-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+
+  document.getElementById('chatViewTitle').innerHTML =
+    `<i class="fas fa-comment-dots"></i> Session: ${sessionId.substring(0, 8)}...`;
+
+  const container = document.getElementById('chatViewMessages');
+  container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+
+  try {
+    const res = await fetch(`/api/chat-session/${sessionId}`);
+    const messages = await res.json();
+    renderMessages(messages);
+  } catch(e) {
+    container.innerHTML = '<div class="empty-state">Failed to load messages.</div>';
+  }
+}
+
+function renderMessages(messages) {
+  const container = document.getElementById('chatViewMessages');
+  if (!messages.length) {
+    container.innerHTML = '<div class="empty-state">No messages in this session.</div>';
+    return;
+  }
+  container.innerHTML = messages.map(m => `
+    <div class="log-message ${m.role === 'user' ? 'log-user' : 'log-bot'}">
+      <div class="log-role">${m.role === 'user' ? '👤 Customer' : '🤖 Maggie'}</div>
+      <div class="log-bubble">${escapeHtml(m.message)}</div>
+      <div class="log-time">${m.created_at ? m.created_at.substring(0, 16) : ''}</div>
+    </div>
+  `).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/\n/g, '<br>');
+}
+
+// Session search
+document.getElementById('sessionSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.session-item').forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+
+// Auto-load first session
+const first = document.querySelector('.session-item');
+if (first) first.click();
+</script>
+{% endblock %}

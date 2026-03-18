@@ -1,0 +1,113 @@
+{% extends "admin/base.html" %}
+{% block title %}Leads{% endblock %}
+{% block page_title %}Customer Leads{% endblock %}
+
+{% block content %}
+<div class="page-toolbar">
+  <div class="filter-tabs">
+    <a href="?type=all" class="filter-tab {% if current_filter == 'all' %}active{% endif %}">All</a>
+    <a href="?type=general" class="filter-tab {% if current_filter == 'general' %}active{% endif %}">General</a>
+    <a href="?type=menu_inquiry" class="filter-tab {% if current_filter == 'menu_inquiry' %}active{% endif %}">Menu</a>
+    <a href="?type=birthday_party" class="filter-tab {% if current_filter == 'birthday_party' %}active{% endif %}">Birthday</a>
+    <a href="?type=reservation" class="filter-tab {% if current_filter == 'reservation' %}active{% endif %}">Reservation</a>
+    <a href="?type=event" class="filter-tab {% if current_filter == 'event' %}active{% endif %}">Event</a>
+  </div>
+  <div class="toolbar-actions">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search leads..."/>
+    <a href="/api/export-leads" class="btn-export"><i class="fas fa-download"></i> Export CSV</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i class="fas fa-users"></i> Leads
+      <span class="count-badge">{{ leads|length }}</span>
+    </h3>
+  </div>
+  <div class="table-responsive">
+    <table class="data-table sortable" id="leadsTable">
+      <thead>
+        <tr>
+          <th class="sortable-col" data-col="0">#</th>
+          <th class="sortable-col" data-col="1">Customer</th>
+          <th class="sortable-col" data-col="2">Phone</th>
+          <th class="sortable-col" data-col="3">Email</th>
+          <th class="sortable-col" data-col="4">Type</th>
+          <th class="sortable-col" data-col="5">Message Preview</th>
+          <th class="sortable-col" data-col="6">Date &amp; Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lead in leads %}
+        <tr>
+          <td class="text-muted">{{ lead.id }}</td>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">{{ (lead.name or 'U')[0].upper() }}</div>
+              <div class="user-name">{{ lead.name or 'Unknown' }}</div>
+            </div>
+          </td>
+          <td>
+            {% if lead.phone %}
+            <a href="tel:{{ lead.phone }}" class="phone-link">
+              <i class="fas fa-phone-alt"></i> {{ lead.phone }}
+            </a>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if lead.email %}
+            <a href="mailto:{{ lead.email }}" class="email-link">{{ lead.email }}</a>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            <span class="badge badge-{{ lead.inquiry_type }}">{{ lead.inquiry_type|replace('_',' ')|title }}</span>
+          </td>
+          <td class="message-preview">{{ (lead.message or '')[:80] }}{% if lead.message and lead.message|length > 80 %}…{% endif %}</td>
+          <td class="text-sm text-muted">{{ lead.created_at[:16] if lead.created_at else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="empty-state">
+            <i class="fas fa-inbox"></i><br>No leads found for this filter.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Search filter
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#leadsTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+
+// Column sort
+document.querySelectorAll('.sortable-col').forEach(th => {
+  th.style.cursor = 'pointer';
+  th.addEventListener('click', () => {
+    const table = document.getElementById('leadsTable');
+    const col = parseInt(th.dataset.col);
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    const asc = th.dataset.asc !== 'true';
+    th.dataset.asc = asc;
+    rows.sort((a, b) => {
+      const av = a.cells[col]?.textContent.trim() || '';
+      const bv = b.cells[col]?.textContent.trim() || '';
+      return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+    const tbody = table.querySelector('tbody');
+    rows.forEach(r => tbody.appendChild(r));
+    document.querySelectorAll('.sortable-col').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+    th.classList.add(asc ? 'sort-asc' : 'sort-desc');
+  });
+});
+</script>
+{% endblock %}
